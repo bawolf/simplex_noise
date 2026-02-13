@@ -1,0 +1,69 @@
+name: Check upstream simplex-noise.js releases
+
+on:
+  schedule:
+    # Run every Monday at 09:00 UTC
+    - cron: "0 9 * * 1"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest upstream release
+        id: upstream
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/jwagner/simplex-noise.js/releases/latest | jq -r '.tag_name')
+          echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+          echo "Latest upstream release: $LATEST"
+
+      - name: Check if issue already exists
+        id: existing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COUNT=$(gh issue list \
+            --repo "${{ github.repository }}" \
+            --search "Upstream simplex-noise.js ${{ steps.upstream.outputs.version }}" \
+            --state all \
+            --json number \
+            --jq 'length')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Existing issues found: $COUNT"
+
+      - name: Check last synced version
+        id: synced
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Read the version we last synced from the repo's tracked file
+          SYNCED=$(curl -s "https://raw.githubusercontent.com/${{ github.repository }}/main/.upstream-version" 2>/dev/null || echo "unknown")
+          echo "version=$SYNCED" >> "$GITHUB_OUTPUT"
+          echo "Last synced version: $SYNCED"
+
+      - name: Create issue for new release
+        if: steps.existing.outputs.count == '0' && steps.upstream.outputs.version != steps.synced.outputs.version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.upstream.outputs.version }}"
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Upstream simplex-noise.js ${VERSION} released" \
+            --label "upstream" \
+            --body "$(cat <<EOF
+          A new version of [simplex-noise.js](https://github.com/jwagner/simplex-noise.js) has been released.
+
+          **Version:** ${VERSION}
+          **Release:** https://github.com/jwagner/simplex-noise.js/releases/tag/${VERSION}
+          **Diff since last synced:** https://github.com/jwagner/simplex-noise.js/compare/$(cat .upstream-version 2>/dev/null || echo "main")...${VERSION}
+
+          ### Checklist
+
+          - [ ] Review the upstream changelog and diff
+          - [ ] Update Elixir implementation to match
+          - [ ] Update or add golden vector tests if noise output changed
+          - [ ] Update \`.upstream-version\` to \`${VERSION}\`
+          EOF
+          )"
+          echo "Issue created for ${VERSION}"

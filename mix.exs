@@ -23,6 +23,7 @@ defmodule SimplexNoise.MixProject do
 
   defp deps do
     [
+      {:ex_doc, "~> 0.35", only: :dev, runtime: false},
       {:stream_data, "~> 1.2", only: :test},
       {:jason, "~> 1.2", only: :test}
     ]
