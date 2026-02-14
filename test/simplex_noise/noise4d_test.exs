@@ -16,8 +16,10 @@ defmodule SimplexNoise.Noise4DTest do
       Enum.each(cases, fn %{"x" => x, "y" => y, "z" => z, "w" => w, "expected" => expected} ->
         result = SimplexNoise.noise4d(noise, x, y, z, w)
 
-        assert_in_delta result, expected, 1.0e-10,
-          "noise4d(#{x}, #{y}, #{z}, #{w}): got #{result}, expected #{expected}"
+        assert_in_delta result,
+                        expected,
+                        1.0e-10,
+                        "noise4d(#{x}, #{y}, #{z}, #{w}): got #{result}, expected #{expected}"
       end)
     end
   end

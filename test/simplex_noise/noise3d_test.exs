@@ -16,8 +16,10 @@ defmodule SimplexNoise.Noise3DTest do
       Enum.each(cases, fn %{"x" => x, "y" => y, "z" => z, "expected" => expected} ->
         result = SimplexNoise.noise3d(noise, x, y, z)
 
-        assert_in_delta result, expected, 1.0e-10,
-          "noise3d(#{x}, #{y}, #{z}): got #{result}, expected #{expected}"
+        assert_in_delta result,
+                        expected,
+                        1.0e-10,
+                        "noise3d(#{x}, #{y}, #{z}): got #{result}, expected #{expected}"
       end)
     end
   end

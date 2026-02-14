@@ -72,8 +72,10 @@ defmodule SimplexNoiseTest do
       for {tc, i} <- Enum.with_index(@noise_vectors) do
         result = SimplexNoise.noise2d(noise_state, tc["x"], tc["y"])
 
-        assert_in_delta result, tc["expected"], 1.0e-10,
-          "case #{i} (#{tc["x"]}, #{tc["y"]}): got #{result}, expected #{tc["expected"]}"
+        assert_in_delta result,
+                        tc["expected"],
+                        1.0e-10,
+                        "case #{i} (#{tc["x"]}, #{tc["y"]}): got #{result}, expected #{tc["expected"]}"
       end
     end
   end
