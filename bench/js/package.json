@@ -1,0 +1,12 @@
+{
+  "name": "simplex-noise-bench",
+  "private": true,
+  "type": "module",
+  "description": "Benchmark simplex-noise.js for cross-language comparison",
+  "scripts": {
+    "bench": "node bench.mjs"
+  },
+  "dependencies": {
+    "simplex-noise": "^4.0.3"
+  }
+}

@@ -73,6 +73,37 @@ Tests include:
 - **Golden vector tests** — output is compared against values produced by the JS `simplex-noise` library to verify bit-level parity.
 - **Property-based tests** (via `stream_data`) — noise output is always within `[-1, 1]`, and identical seeds produce identical results.
 
+## Benchmarks
+
+Each scenario evaluates **512 noise calls** (8x8x8 grid) per iteration, matching the methodology of the upstream JS library's [`perf/index.js`](https://github.com/jwagner/simplex-noise.js/blob/main/perf/index.js).
+
+### Elixir (BEAM JIT)
+
+Run with `mix run bench/simplex_noise_bench.exs`:
+
+| Scenario | IPS | Avg per batch | Median |
+|----------|-----|---------------|--------|
+| noise2d (512 calls) | 9.08 K | 110.10 us | 73.21 us |
+| noise3d (512 calls) | 6.91 K | 144.73 us | 123.08 us |
+| noise4d (512 calls) | 4.36 K | 229.39 us | 207.00 us |
+
+### JavaScript (Node.js / V8 JIT)
+
+Run with `cd bench/js && npm install && npm run bench`:
+
+| Scenario | iterations/s | noise calls/s | avg per batch |
+|----------|-------------|---------------|---------------|
+| noise2D (512 calls) | 35,974 | 18,418,827 | 27.80 us |
+| noise3D (512 calls) | 27,278 | 13,966,572 | 36.66 us |
+| noise4D (512 calls) | 22,267 | 11,400,923 | 44.91 us |
+
+### Comparison
+
+V8's JIT is heavily optimized for tight numerical loops, so the JS library is roughly **3-4x faster** in raw single-threaded throughput. That said, the Elixir implementation is plenty fast for procedural generation workloads — generating a 512-point noise field in ~73-207 us — and benefits from BEAM's concurrency model when computing noise across multiple regions in parallel.
+
+> **Machine:** Apple M2 Air, 8 cores, macOS. Elixir 1.18.4 / OTP 28, Node.js v22.
+> Full Benchee output is saved to [`bench/output/results.md`](bench/output/results.md).
+
 ## License
 
 MIT

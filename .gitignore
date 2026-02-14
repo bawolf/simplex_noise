@@ -21,3 +21,6 @@ simplex_noise-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# JS benchmark dependencies
+/bench/js/node_modules/
