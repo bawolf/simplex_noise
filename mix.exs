@@ -10,7 +10,7 @@ defmodule SimplexNoise.MixProject do
       deps: deps(),
       description: "A fast simplex noise implementation in Elixir (2D, 3D, 4D)",
       package: package(),
-      source_url: "https://github.com/bryantwolf/simplex_noise",
+      source_url: "https://github.com/bawolf/simplex_noise",
       docs: [main: "SimplexNoise"]
     ]
   end
@@ -33,7 +33,7 @@ defmodule SimplexNoise.MixProject do
     [
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/bryantwolf/simplex_noise"
+        "GitHub" => "https://github.com/bawolf/simplex_noise"
       }
     ]
   end
