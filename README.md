@@ -33,6 +33,9 @@ SimplexNoise.noise3d(state, 1.0, 2.0, 3.0)
 # 4D noise
 state = SimplexNoise.create_noise_4d(42)
 SimplexNoise.noise4d(state, 1.0, 2.0, 3.0, 4.0)
+
+# Batch APIs (higher throughput for field generation)
+SimplexNoise.noise2d_many(state, [{0.0, 0.0}, {0.125, 0.25}, {0.25, 0.5}])
 ```
 
 ### Custom PRNG
@@ -77,15 +80,23 @@ Tests include:
 
 Each scenario evaluates **512 noise calls** (8x8x8 grid) per iteration, matching the methodology of the upstream JS library's [`perf/index.js`](https://github.com/jwagner/simplex-noise.js/blob/main/perf/index.js).
 
+For best throughput on BEAM, prefer batch APIs (`noise2d_many/2`, `noise3d_many/2`, `noise4d_many/2`) over calling scalar `noise*` in `Enum` loops.
+
 ### Elixir (BEAM JIT)
 
 Run with `mix run bench/simplex_noise_bench.exs`:
 
+Run both Elixir + JS benchmarks and refresh these README tables with:
+`mix bench.update_readme`
+
 | Scenario | IPS | Avg per batch | Median |
 |----------|-----|---------------|--------|
-| noise2d (512 calls) | 9.08 K | 110.10 us | 73.21 us |
-| noise3d (512 calls) | 6.91 K | 144.73 us | 123.08 us |
-| noise4d (512 calls) | 4.36 K | 229.39 us | 207.00 us |
+| noise2d_many (512 calls) | 8.98 K | 111.33 us | 79.46 us |
+| noise3d (512 calls) | 6.81 K | 146.80 us | 126.75 us |
+| noise2d (512 calls) | 6.67 K | 149.87 us | 75 us |
+| noise4d (512 calls) | 4.46 K | 224.12 us | 208.88 us |
+| noise3d_many (512 calls) | 4.35 K | 229.96 us | 138.25 us |
+| noise4d_many (512 calls) | 2.75 K | 363.10 us | 314.92 us |
 
 ### JavaScript (Node.js / V8 JIT)
 
@@ -93,15 +104,15 @@ Run with `cd bench/js && npm install && npm run bench`:
 
 | Scenario | iterations/s | noise calls/s | avg per batch |
 |----------|-------------|---------------|---------------|
-| noise2D (512 calls) | 35,974 | 18,418,827 | 27.80 us |
-| noise3D (512 calls) | 27,278 | 13,966,572 | 36.66 us |
-| noise4D (512 calls) | 22,267 | 11,400,923 | 44.91 us |
+| noise2D (512 calls) | 11,403 | 5,838,413 | 87.70 μs |
+| noise3D (512 calls) | 12,764 | 6,535,316 | 78.34 μs |
+| noise4D (512 calls) | 10,663 | 5,459,224 | 93.79 μs |
 
 ### Comparison
 
-V8's JIT is heavily optimized for tight numerical loops, so the JS library is roughly **3-4x faster** in raw single-threaded throughput. That said, the Elixir implementation is plenty fast for procedural generation workloads — generating a 512-point noise field in ~73-207 us — and benefits from BEAM's concurrency model when computing noise across multiple regions in parallel.
+V8's JIT is heavily optimized for tight numerical loops, so the JS library is still faster in raw single-threaded scalar throughput. The Elixir implementation improves total generation throughput by using batch APIs, dropping 512-point generation to ~111.33us (2D), ~229.96us (3D), and ~363.10us (4D), and benefits from BEAM concurrency when computing multiple regions in parallel.
 
-> **Machine:** Apple M2 Air, 8 cores, macOS. Elixir 1.18.4 / OTP 28, Node.js v22.
+> **Machine:** Apple M2, 8 cores, macOS. Elixir 1.18.4 / OTP 28.0.2, Node.js v22.17.0.
 > Full Benchee output is saved to [`bench/output/results.md`](bench/output/results.md).
 
 ## License

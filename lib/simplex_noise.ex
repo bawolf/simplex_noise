@@ -36,6 +36,18 @@ defmodule SimplexNoise do
 
   import Bitwise
 
+  @compile {:inline,
+            [
+              fast_floor: 1,
+              bool_to_int: 1,
+              corner2d: 9,
+              corner3d: 13,
+              corner4d: 17,
+              do_noise2d: 5,
+              do_noise3d: 7,
+              do_noise4d: 9
+            ]}
+
   # -------------------------------------------------------------------
   # Types
   # -------------------------------------------------------------------
@@ -50,13 +62,13 @@ defmodule SimplexNoise do
   @type seed_or_random :: seed() | random_fn()
 
   @typedoc "Opaque state for 2D noise sampling. Created by `create_noise_2d/1`."
-  @opaque noise2d_state :: map()
+  @opaque noise2d_state :: {:noise2d_state, tuple(), tuple(), tuple()}
 
   @typedoc "Opaque state for 3D noise sampling. Created by `create_noise_3d/1`."
-  @opaque noise3d_state :: map()
+  @opaque noise3d_state :: {:noise3d_state, tuple(), tuple(), tuple(), tuple()}
 
   @typedoc "Opaque state for 4D noise sampling. Created by `create_noise_4d/1`."
-  @opaque noise4d_state :: map()
+  @opaque noise4d_state :: {:noise4d_state, tuple(), tuple(), tuple(), tuple(), tuple()}
 
   # -------------------------------------------------------------------
   # Constants (matching JS source exactly)
@@ -337,14 +349,35 @@ defmodule SimplexNoise do
         {[elem(@grad2, base) | xs], [elem(@grad2, base + 1) | ys]}
       end)
 
-    %{perm: perm, perm_grad2x: List.to_tuple(grad2x), perm_grad2y: List.to_tuple(grad2y)}
+    {:noise2d_state, perm, List.to_tuple(grad2x), List.to_tuple(grad2y)}
   end
 
   @doc """
   Sample 2D simplex noise at `(x, y)`. Returns a float in `[-1, 1]`.
   """
   @spec noise2d(noise2d_state(), number(), number()) :: float()
-  def noise2d(%{perm: perm, perm_grad2x: pg2x, perm_grad2y: pg2y}, x, y) do
+  def noise2d({:noise2d_state, perm, pg2x, pg2y}, x, y) do
+    do_noise2d(perm, pg2x, pg2y, x, y)
+  end
+
+  @doc """
+  Sample many 2D simplex noise coordinates.
+
+  Accepts a list of `{x, y}` tuples and returns a list of values in `[-1, 1]`
+  in the same order.
+  """
+  @spec noise2d_many(noise2d_state(), [{number(), number()}]) :: [float()]
+  def noise2d_many({:noise2d_state, perm, pg2x, pg2y}, coords) when is_list(coords) do
+    noise2d_many(coords, perm, pg2x, pg2y, [])
+  end
+
+  defp noise2d_many([], _perm, _pg2x, _pg2y, acc), do: :lists.reverse(acc)
+
+  defp noise2d_many([{x, y} | rest], perm, pg2x, pg2y, acc) do
+    noise2d_many(rest, perm, pg2x, pg2y, [do_noise2d(perm, pg2x, pg2y, x, y) | acc])
+  end
+
+  defp do_noise2d(perm, pg2x, pg2y, x, y) do
     s = (x + y) * @f2
     i = fast_floor(x + s)
     j = fast_floor(y + s)
@@ -410,19 +443,35 @@ defmodule SimplexNoise do
         }
       end)
 
-    %{
-      perm: perm,
-      perm_grad3x: List.to_tuple(grad3x),
-      perm_grad3y: List.to_tuple(grad3y),
-      perm_grad3z: List.to_tuple(grad3z)
-    }
+    {:noise3d_state, perm, List.to_tuple(grad3x), List.to_tuple(grad3y), List.to_tuple(grad3z)}
   end
 
   @doc """
   Sample 3D simplex noise at `(x, y, z)`. Returns a float in `[-1, 1]`.
   """
   @spec noise3d(noise3d_state(), number(), number(), number()) :: float()
-  def noise3d(%{perm: perm, perm_grad3x: pg3x, perm_grad3y: pg3y, perm_grad3z: pg3z}, x, y, z) do
+  def noise3d({:noise3d_state, perm, pg3x, pg3y, pg3z}, x, y, z) do
+    do_noise3d(perm, pg3x, pg3y, pg3z, x, y, z)
+  end
+
+  @doc """
+  Sample many 3D simplex noise coordinates.
+
+  Accepts a list of `{x, y, z}` tuples and returns a list of values in `[-1, 1]`
+  in the same order.
+  """
+  @spec noise3d_many(noise3d_state(), [{number(), number(), number()}]) :: [float()]
+  def noise3d_many({:noise3d_state, perm, pg3x, pg3y, pg3z}, coords) when is_list(coords) do
+    noise3d_many(coords, perm, pg3x, pg3y, pg3z, [])
+  end
+
+  defp noise3d_many([], _perm, _pg3x, _pg3y, _pg3z, acc), do: :lists.reverse(acc)
+
+  defp noise3d_many([{x, y, z} | rest], perm, pg3x, pg3y, pg3z, acc) do
+    noise3d_many(rest, perm, pg3x, pg3y, pg3z, [do_noise3d(perm, pg3x, pg3y, pg3z, x, y, z) | acc])
+  end
+
+  defp do_noise3d(perm, pg3x, pg3y, pg3z, x, y, z) do
     s = (x + y + z) * @f3
     i = fast_floor(x + s)
     j = fast_floor(y + s)
@@ -512,32 +561,38 @@ defmodule SimplexNoise do
         }
       end)
 
-    %{
-      perm: perm,
-      perm_grad4x: List.to_tuple(grad4x),
-      perm_grad4y: List.to_tuple(grad4y),
-      perm_grad4z: List.to_tuple(grad4z),
-      perm_grad4w: List.to_tuple(grad4w)
-    }
+    {:noise4d_state, perm, List.to_tuple(grad4x), List.to_tuple(grad4y), List.to_tuple(grad4z),
+     List.to_tuple(grad4w)}
   end
 
   @doc """
   Sample 4D simplex noise at `(x, y, z, w)`. Returns a float in `[-1, 1]`.
   """
   @spec noise4d(noise4d_state(), number(), number(), number(), number()) :: float()
-  def noise4d(
-        %{
-          perm: perm,
-          perm_grad4x: pg4x,
-          perm_grad4y: pg4y,
-          perm_grad4z: pg4z,
-          perm_grad4w: pg4w
-        },
-        x,
-        y,
-        z,
-        w
-      ) do
+  def noise4d({:noise4d_state, perm, pg4x, pg4y, pg4z, pg4w}, x, y, z, w) do
+    do_noise4d(perm, pg4x, pg4y, pg4z, pg4w, x, y, z, w)
+  end
+
+  @doc """
+  Sample many 4D simplex noise coordinates.
+
+  Accepts a list of `{x, y, z, w}` tuples and returns a list of values in `[-1, 1]`
+  in the same order.
+  """
+  @spec noise4d_many(noise4d_state(), [{number(), number(), number(), number()}]) :: [float()]
+  def noise4d_many({:noise4d_state, perm, pg4x, pg4y, pg4z, pg4w}, coords) when is_list(coords) do
+    noise4d_many(coords, perm, pg4x, pg4y, pg4z, pg4w, [])
+  end
+
+  defp noise4d_many([], _perm, _pg4x, _pg4y, _pg4z, _pg4w, acc), do: :lists.reverse(acc)
+
+  defp noise4d_many([{x, y, z, w} | rest], perm, pg4x, pg4y, pg4z, pg4w, acc) do
+    noise4d_many(rest, perm, pg4x, pg4y, pg4z, pg4w, [
+      do_noise4d(perm, pg4x, pg4y, pg4z, pg4w, x, y, z, w) | acc
+    ])
+  end
+
+  defp do_noise4d(perm, pg4x, pg4y, pg4z, pg4w, x, y, z, w) do
     s = (x + y + z + w) * @f4
     i = fast_floor(x + s)
     j = fast_floor(y + s)
@@ -620,7 +675,11 @@ defmodule SimplexNoise do
   # Private helpers
   # ===================================================================
 
-  defp fast_floor(x), do: trunc(:math.floor(x))
+  # `trunc/1` followed by one correction branch is faster than :math.floor/1.
+  defp fast_floor(x) do
+    xi = trunc(x)
+    if x < xi, do: xi - 1, else: xi
+  end
 
   defp bool_to_int(true), do: 1
   defp bool_to_int(false), do: 0

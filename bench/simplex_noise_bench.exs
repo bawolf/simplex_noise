@@ -16,6 +16,9 @@ coords =
     {x / 8, y / 8, z / 8}
   end
 
+coords2d = for {x, y, _z} <- coords, do: {x, y}
+coords4d = for {x, y, z} <- coords, do: {x, y, z, (x + y) / 2}
+
 Benchee.run(
   %{
     "noise2d (512 calls)" => fn ->
@@ -23,15 +26,24 @@ Benchee.run(
         SimplexNoise.noise2d(noise2d, x, y)
       end)
     end,
+    "noise2d_many (512 calls)" => fn ->
+      SimplexNoise.noise2d_many(noise2d, coords2d)
+    end,
     "noise3d (512 calls)" => fn ->
       Enum.each(coords, fn {x, y, z} ->
         SimplexNoise.noise3d(noise3d, x, y, z)
       end)
     end,
+    "noise3d_many (512 calls)" => fn ->
+      SimplexNoise.noise3d_many(noise3d, coords)
+    end,
     "noise4d (512 calls)" => fn ->
       Enum.each(coords, fn {x, y, z} ->
         SimplexNoise.noise4d(noise4d, x, y, z, (x + y) / 2)
       end)
+    end,
+    "noise4d_many (512 calls)" => fn ->
+      SimplexNoise.noise4d_many(noise4d, coords4d)
     end
   },
   time: 10,

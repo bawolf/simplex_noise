@@ -179,4 +179,40 @@ defmodule SimplexNoiseTest do
       assert val >= -1.0 and val <= 1.0
     end
   end
+
+  # ---------------------------------------------------------------
+  # Batch APIs
+  # ---------------------------------------------------------------
+
+  describe "noise*_many batch APIs" do
+    test "noise2d_many matches per-point noise2d" do
+      state = SimplexNoise.create_noise_2d(42)
+      coords = [{0.0, 0.0}, {0.125, 0.25}, {1.5, -2.25}, {-10.0, 2.75}]
+
+      expected = Enum.map(coords, fn {x, y} -> SimplexNoise.noise2d(state, x, y) end)
+
+      assert SimplexNoise.noise2d_many(state, coords) == expected
+    end
+
+    test "noise3d_many matches per-point noise3d" do
+      state = SimplexNoise.create_noise_3d(42)
+      coords = [{0.0, 0.0, 0.0}, {0.125, 0.25, 0.5}, {1.5, -2.25, 3.125}, {-10.0, 2.75, 9.0}]
+
+      expected = Enum.map(coords, fn {x, y, z} -> SimplexNoise.noise3d(state, x, y, z) end)
+
+      assert SimplexNoise.noise3d_many(state, coords) == expected
+    end
+
+    test "noise4d_many matches per-point noise4d" do
+      state = SimplexNoise.create_noise_4d(42)
+      coords = [{0.0, 0.0, 0.0, 0.0}, {0.125, 0.25, 0.5, 0.75}, {1.5, -2.25, 3.125, -4.0}]
+
+      expected =
+        Enum.map(coords, fn {x, y, z, w} ->
+          SimplexNoise.noise4d(state, x, y, z, w)
+        end)
+
+      assert SimplexNoise.noise4d_many(state, coords) == expected
+    end
+  end
 end

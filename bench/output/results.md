@@ -15,13 +15,13 @@ Benchmark suite executing on the following system:
     <td>macOS</td>
   </tr><tr>
     <th style="white-space: nowrap">CPU Information</th>
-    <td style="white-space: nowrap">N/A</td>
+    <td style="white-space: nowrap">Apple M2</td>
   </tr><tr>
     <th style="white-space: nowrap">Number of Available Cores</th>
     <td style="white-space: nowrap">8</td>
   </tr><tr>
     <th style="white-space: nowrap">Available Memory</th>
-    <td style="white-space: nowrap">N/A</td>
+    <td style="white-space: nowrap">24 GB</td>
   </tr><tr>
     <th style="white-space: nowrap">Elixir Version</th>
     <td style="white-space: nowrap">1.18.4</td>
@@ -65,30 +65,57 @@ Run Time
   </tr>
 
   <tr>
-    <td style="white-space: nowrap">noise2d (512 calls)</td>
-    <td style="white-space: nowrap; text-align: right">9.08 K</td>
-    <td style="white-space: nowrap; text-align: right">110.10 &micro;s</td>
-    <td style="white-space: nowrap; text-align: right">&plusmn;750.13%</td>
-    <td style="white-space: nowrap; text-align: right">73.21 &micro;s</td>
-    <td style="white-space: nowrap; text-align: right">335.21 &micro;s</td>
+    <td style="white-space: nowrap">noise2d_many (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">8.98 K</td>
+    <td style="white-space: nowrap; text-align: right">111.33 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;619.32%</td>
+    <td style="white-space: nowrap; text-align: right">79.46 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">412.97 &micro;s</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">noise3d (512 calls)</td>
-    <td style="white-space: nowrap; text-align: right">6.91 K</td>
-    <td style="white-space: nowrap; text-align: right">144.73 &micro;s</td>
-    <td style="white-space: nowrap; text-align: right">&plusmn;384.92%</td>
-    <td style="white-space: nowrap; text-align: right">123.08 &micro;s</td>
-    <td style="white-space: nowrap; text-align: right">345.53 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">6.81 K</td>
+    <td style="white-space: nowrap; text-align: right">146.80 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;284.82%</td>
+    <td style="white-space: nowrap; text-align: right">126.75 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">427.39 &micro;s</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">noise2d (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">6.67 K</td>
+    <td style="white-space: nowrap; text-align: right">149.87 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;926.50%</td>
+    <td style="white-space: nowrap; text-align: right">75 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">639.56 &micro;s</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">noise4d (512 calls)</td>
-    <td style="white-space: nowrap; text-align: right">4.36 K</td>
-    <td style="white-space: nowrap; text-align: right">229.39 &micro;s</td>
-    <td style="white-space: nowrap; text-align: right">&plusmn;149.26%</td>
-    <td style="white-space: nowrap; text-align: right">207 &micro;s</td>
-    <td style="white-space: nowrap; text-align: right">505.04 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">4.46 K</td>
+    <td style="white-space: nowrap; text-align: right">224.12 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;117.87%</td>
+    <td style="white-space: nowrap; text-align: right">208.88 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">534.60 &micro;s</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">noise3d_many (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">4.35 K</td>
+    <td style="white-space: nowrap; text-align: right">229.96 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;608.44%</td>
+    <td style="white-space: nowrap; text-align: right">138.25 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">775.04 &micro;s</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">noise4d_many (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">2.75 K</td>
+    <td style="white-space: nowrap; text-align: right">363.10 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">&plusmn;128.63%</td>
+    <td style="white-space: nowrap; text-align: right">314.92 &micro;s</td>
+    <td style="white-space: nowrap; text-align: right">957.79 &micro;s</td>
   </tr>
 
 </table>
@@ -102,21 +129,39 @@ Run Time Comparison
     <th style="text-align: right">IPS</th>
     <th style="text-align: right">Slower</th>
   <tr>
-    <td style="white-space: nowrap">noise2d (512 calls)</td>
-    <td style="white-space: nowrap;text-align: right">9.08 K</td>
+    <td style="white-space: nowrap">noise2d_many (512 calls)</td>
+    <td style="white-space: nowrap;text-align: right">8.98 K</td>
     <td>&nbsp;</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">noise3d (512 calls)</td>
-    <td style="white-space: nowrap; text-align: right">6.91 K</td>
-    <td style="white-space: nowrap; text-align: right">1.31x</td>
+    <td style="white-space: nowrap; text-align: right">6.81 K</td>
+    <td style="white-space: nowrap; text-align: right">1.32x</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">noise2d (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">6.67 K</td>
+    <td style="white-space: nowrap; text-align: right">1.35x</td>
   </tr>
 
   <tr>
     <td style="white-space: nowrap">noise4d (512 calls)</td>
-    <td style="white-space: nowrap; text-align: right">4.36 K</td>
-    <td style="white-space: nowrap; text-align: right">2.08x</td>
+    <td style="white-space: nowrap; text-align: right">4.46 K</td>
+    <td style="white-space: nowrap; text-align: right">2.01x</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">noise3d_many (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">4.35 K</td>
+    <td style="white-space: nowrap; text-align: right">2.07x</td>
+  </tr>
+
+  <tr>
+    <td style="white-space: nowrap">noise4d_many (512 calls)</td>
+    <td style="white-space: nowrap; text-align: right">2.75 K</td>
+    <td style="white-space: nowrap; text-align: right">3.26x</td>
   </tr>
 
 </table>
@@ -132,18 +177,33 @@ Memory Usage
     <th style="text-align: right">Factor</th>
   </tr>
   <tr>
-    <td style="white-space: nowrap">noise2d (512 calls)</td>
-    <td style="white-space: nowrap">183.02 KB</td>
+    <td style="white-space: nowrap">noise2d_many (512 calls)</td>
+    <td style="white-space: nowrap">183 KB</td>
     <td>&nbsp;</td>
   </tr>
     <tr>
     <td style="white-space: nowrap">noise3d (512 calls)</td>
-    <td style="white-space: nowrap">311.21 KB</td>
-    <td>1.7x</td>
+    <td style="white-space: nowrap">287.21 KB</td>
+    <td>1.57x</td>
+  </tr>
+    <tr>
+    <td style="white-space: nowrap">noise2d (512 calls)</td>
+    <td style="white-space: nowrap">167.02 KB</td>
+    <td>0.91x</td>
   </tr>
     <tr>
     <td style="white-space: nowrap">noise4d (512 calls)</td>
-    <td style="white-space: nowrap">432.79 KB</td>
-    <td>2.36x</td>
+    <td style="white-space: nowrap">400.79 KB</td>
+    <td>2.19x</td>
+  </tr>
+    <tr>
+    <td style="white-space: nowrap">noise3d_many (512 calls)</td>
+    <td style="white-space: nowrap">303.19 KB</td>
+    <td>1.66x</td>
+  </tr>
+    <tr>
+    <td style="white-space: nowrap">noise4d_many (512 calls)</td>
+    <td style="white-space: nowrap">408.77 KB</td>
+    <td>2.23x</td>
   </tr>
 </table>
